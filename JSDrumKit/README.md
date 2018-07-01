@@ -1,4 +1,4 @@
-## What Did I Learn
+## What did I learn
 
 [Demo](https://eowino.github.io/JS30/JSDrumKit/)
 
