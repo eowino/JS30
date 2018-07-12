@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Key Detection</title>
+  <script type="text/javascript" src="http://www.cornify.com/js/cornify.js"></script>
+</head>
+<body>
+  <p style="text-align: center">Type <span class="match"></span> anywhere</p>
+<script>
+  const stringToMatch = 'mango';
+  document.querySelector('.match').textContent = stringToMatch;
+  const keyLog = [];
+
+  window.addEventListener('keyup', (e) => {
+    keyLog.push(e.key);
+    keyLog.splice(-stringToMatch.length - 1, keyLog.length - stringToMatch.length);
+
+    if (keyLog.join('').includes(stringToMatch)) {
+      console.log('You got it!');
+      cornify_add();
+    }
+  });
+</script>
+</body>
+</html>
