@@ -1,59 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Hold Shift to Check Multiple Checkboxes</title>
 </head>
+
 <body>
   <style>
-
     html {
       font-family: sans-serif;
-      background:#ffc600;
+      background: #ffc600;
     }
 
     .inbox {
-      max-width:400px;
-      margin:50px auto;
-      background:white;
-      border-radius:5px;
-      box-shadow:10px 10px 0 rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 50px auto;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
     }
 
     .item {
-      display:flex;
-      align-items:center;
+      display: flex;
+      align-items: center;
       border-bottom: 1px solid #F1F1F1;
     }
 
     .item:last-child {
-      border-bottom:0;
+      border-bottom: 0;
     }
 
 
-    input:checked + p {
-      background:#F9F9F9;
+    input:checked+p {
+      background: #F9F9F9;
       text-decoration: line-through;
     }
 
     input[type="checkbox"] {
-      margin:20px;
+      margin: 20px;
     }
 
     p {
-      margin:0;
-      padding:20px;
-      transition:background 0.2s;
-      flex:1;
-      font-family:'helvetica neue';
+      margin: 0;
+      padding: 20px;
+      transition: background 0.2s;
+      flex: 1;
+      font-family: 'helvetica neue';
       font-size: 20px;
       font-weight: 200;
       border-left: 1px solid #D1E2FF;
     }
-
-
   </style>
-   <!--
+  <!--
    The following is a common layout you would see in an email client.
 
    When a user clicks a checkbox, holds Shift, and then clicks another checkbox a few rows down, all the checkboxes inbetween those two checkboxes should be checked.
@@ -98,57 +97,76 @@
     </div>
   </div>
 
-<script>
-  const inbox = document.querySelector('.inbox');
-  const NEXT = 'next';
-  const PREV = 'previous';
-  let currentSelcted = null;
-  
-  function getNextInput(element, direction = NEXT) {
-    let el = null;
-    
-    if (element) {
-      const parent = element.parentElement[`${direction}ElementSibling`];
-      if (parent) {
-        el = parent.firstElementChild;
+  <script>
+    const inbox = document.querySelector('.inbox');
+    const NEXT = 'next';
+    const PREV = 'previous';
+    let prevInput, nextInput;
+    let currentSelcted = null;
+
+    function getNextInput(element, direction = NEXT) {
+      let el = null;
+
+      if (element) {
+        const parent = element.parentElement[`${direction}ElementSibling`];
+        if (parent) {
+          el = parent.firstElementChild;
+        }
+      }
+
+      return el;
+    }
+
+    function setChecked(target, direction = NEXT, checkedState) {
+      let nextTarget = getNextInput(target, direction);
+      while (nextTarget !== nextInput) {
+        nextTarget.checked = checkedState;
+        nextTarget = getNextInput(nextTarget, direction);
+      }
+      
+      prevInput.checked = checkedState;
+      prevInput = nextInput;
+      nextInput = null;
+    }
+
+    function prevAndNextCheck(target) {
+      if (!prevInput) {
+        prevInput = target;
+      } else if (!nextInput) {
+        nextInput = target;
+      } else {
+        prevInput = target;
+        nextInput = null;
       }
     }
 
-    return el;
-  }
+    function checkHandler(event) {
+      const target = event.target;
+      const isInput = target instanceof HTMLInputElement;
+      const shiftKeyTrue = event.shiftKey;
 
-  function setBelowChecked(target) {
-    let nextTarget = getNextInput(target);
-    while(nextTarget !== null) {
-      nextTarget.checked = true;
-      nextTarget = getNextInput(nextTarget);
-    }
-  }
+      if (isInput) {
+        if (shiftKeyTrue) {
+          // set previous and next checkbox
+          prevAndNextCheck(target);
+          const currentCheckedState = target.checked;
 
-  function setAboveChecked(target) {
-    
-  }
-
-  function checkHandler(event) {
-    const target = event.target;
-    const isInput = target instanceof HTMLInputElement;
-    const shiftKeyTrue = event.shiftKey;
-    
-    if (!isInput) return;
-    
-    if (isInput) {
-      if (!shiftKeyTrue) {
-        currentSelcted = target;
-      } else if (shiftKeyTrue && currentSelcted === null) {
-        setBelowChecked(target);
+          // if block - check which one clicked
+          if (prevInput && nextInput) {
+            if (prevInput.offsetTop > nextInput.offsetTop) {
+              setChecked(prevInput, PREV, currentCheckedState);
+            } else if (prevInput.offsetTop < nextInput.offsetTop) {
+              setChecked(prevInput, NEXT, currentCheckedState);
+            }
+          }
+        } else {
+          prevInput = target;
+        }
       }
-    };
-    
-    
-    console.log(event);
-  }
+    }
 
-  inbox.addEventListener('click', checkHandler);
-</script>
+    inbox.addEventListener('click', checkHandler);
+  </script>
 </body>
+
 </html>
