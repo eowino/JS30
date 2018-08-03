@@ -98,75 +98,30 @@
   </div>
 
   <script>
-    const inbox = document.querySelector('.inbox');
-    const NEXT = 'next';
-    const PREV = 'previous';
-    let prevInput, nextInput;
-    let currentSelcted = null;
+    const checkboxes = document.querySelectorAll('.inbox input[type="checkbox"]');
+    let lastChecked;
 
-    function getNextInput(element, direction = NEXT) {
-      let el = null;
+    function handleCheck(e) {
+      let inbetween = false;
 
-      if (element) {
-        const parent = element.parentElement[`${direction}ElementSibling`];
-        if (parent) {
-          el = parent.firstElementChild;
-        }
-      }
-
-      return el;
-    }
-
-    function setChecked(target, direction = NEXT, checkedState) {
-      let nextTarget = getNextInput(target, direction);
-      while (nextTarget !== nextInput) {
-        nextTarget.checked = checkedState;
-        nextTarget = getNextInput(nextTarget, direction);
-      }
-      
-      prevInput.checked = checkedState;
-      prevInput = nextInput;
-      nextInput = null;
-    }
-
-    function prevAndNextCheck(target) {
-      if (!prevInput) {
-        prevInput = target;
-      } else if (!nextInput) {
-        nextInput = target;
-      } else {
-        prevInput = target;
-        nextInput = null;
-      }
-    }
-
-    function checkHandler(event) {
-      const target = event.target;
-      const isInput = target instanceof HTMLInputElement;
-      const shiftKeyTrue = event.shiftKey;
-
-      if (isInput) {
-        if (shiftKeyTrue) {
-          // set previous and next checkbox
-          prevAndNextCheck(target);
-          const currentCheckedState = target.checked;
-
-          // if block - check which one clicked
-          if (prevInput && nextInput) {
-            if (prevInput.offsetTop > nextInput.offsetTop) {
-              setChecked(prevInput, PREV, currentCheckedState);
-            } else if (prevInput.offsetTop < nextInput.offsetTop) {
-              setChecked(prevInput, NEXT, currentCheckedState);
-            }
+      if (e.shiftKey) {
+        checkboxes.forEach(checkbox => {
+          if (checkbox === this || checkbox === lastChecked) {
+            inbetween = !inbetween;
           }
-        } else {
-          prevInput = target;
-        }
+          
+          if (inbetween) {
+            checkbox.checked = this.checked;
+          }
+        });
       }
+
+      lastChecked = this;
     }
 
-    inbox.addEventListener('click', checkHandler);
+    checkboxes.forEach(checkbox => checkbox.addEventListener('click', handleCheck));
   </script>
+
 </body>
 
 </html>
